@@ -67,7 +67,7 @@ public class homework {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		readFile("input1000.txt");
+		readFile("testcases/input4.txt");
 		long start = System.currentTimeMillis();
 		switch (method) {
 			case "BFS": BFS() ; break;
