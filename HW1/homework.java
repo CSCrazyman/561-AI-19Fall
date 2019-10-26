@@ -1,5 +1,3 @@
-package csci561;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
