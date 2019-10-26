@@ -83,8 +83,8 @@ public class homework {
 	
 	private static void readFile(String filename) {
 		try {
-			File file = new File(filename);
-			Scanner scanner = new Scanner(file);
+		    File file = new File(filename);
+		    Scanner scanner = new Scanner(file);
 		    method = scanner.next();
 		    col = scanner.nextInt();
 		    row = scanner.nextInt();
