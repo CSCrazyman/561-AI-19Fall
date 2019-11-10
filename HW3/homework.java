@@ -1,5 +1,3 @@
-package csci561;
-
 import java.io.*;
 import java.util.*;
 
@@ -299,12 +297,12 @@ public class homework {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		readFile("testcases/input5.txt");
-		showInput();
+		readFile("input.txt");
+		// showInput();
 		generateSentences();
 		beginCheck();
 		output(results);
-		showOutput();
+		// showOutput();
 	}
 	
 	private static void readFile(String filename) {
@@ -452,23 +450,6 @@ public class homework {
 		System.out.println();
 	}
 	
-	private static void showSets() {
-		Sentence test = new Sentence();
-		test.addLiteral("Take(Alice,Warfarin)");
-		System.out.println("All Sentences: ");
-		for (Sentence sen : setAll) {
-			Map<String, String> pairs = sen.canEliminate(test);
-			if (pairs.size() != 0) {
-				System.out.println(sen);
-				System.out.println("Can eliminate: ");
-				for (String key : pairs.keySet()) {
-					System.out.println(key + " with " + pairs.get(key));
-				}
-				System.out.println(sen.eliminate(test, pairs));
-			}
-		}
-	}
-	
 	private static void showOutput() {
 		System.out.println("+++++++++++++++++++++");
 		System.out.println("Outputs: ");
@@ -479,24 +460,3 @@ public class homework {
 	}
 
 }
-
-
-//This is convenient function
-//long start = System.currentTimeMillis();
-//long end = System.currentTimeMillis();
-//System.out.println("time:" + (end - start)  + " ms");
-
-//private static Set<Sentence> setVarAndImp;
-//private static Set<Sentence> setNotVarAndImp;
-//private static Set<Sentence> setVarAndNotImp;
-//private static Set<Sentence> setNotVarAndNotImp;
-//setVarAndImp = new HashSet<>();
-//setNotVarAndImp = new HashSet<>();
-//setVarAndNotImp = new HashSet<>();
-//setNotVarAndNotImp = new HashSet<>();
-
-//if (sentence.hasVariables()) setVarAndImp.add(sentence);
-//else setNotVarAndImp.add(sentence);
-
-//if (sentence.hasVariables()) setVarAndNotImp.add(sentence);
-//else setNotVarAndNotImp.add(sentence);
