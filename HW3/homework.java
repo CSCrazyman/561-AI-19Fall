@@ -1,3 +1,5 @@
+package csci561;
+
 import java.io.*;
 import java.util.*;
 
@@ -62,6 +64,8 @@ public class homework {
 			String[] args = query.substring(idx1 + 1, idx2).split(",");
 			
 			for (String literal : literals) {
+				Map<Character, String> uniMap1 = new HashMap<>();
+				Map<Character, String> uniMap2 = new HashMap<>();
 				found = true;
 				idx1 = literal.indexOf('(');
 				idx2 = literal.indexOf(')');
@@ -70,11 +74,39 @@ public class homework {
 				if (preName.equals(tempPreName) && (subNegative != negative)) {
 					String[] tempArgs = literal.substring(idx1 + 1, idx2).split(",");
 					for (int i = 0 ; i < tempArgs.length ; i++) {
+						boolean subFound1 = false;
+						boolean subFound2 = false;
 						if (args[i].length() == 1) {
 							char c = args[i].toCharArray()[0];
-							if (c <= 'z' && c >= 'a') continue;
+							if (c <= 'z' && c >= 'a') {
+								if (uniMap1.containsKey(c)) {
+									if (!uniMap1.get(c).equals(tempArgs[i])) {
+										found = false;
+										break;
+									}
+								}
+								else {
+									uniMap1.put(c, tempArgs[i]);
+									subFound1 = true;
+								}
+							}
 						}
-						if (variables.contains(tempArgs[i])) continue;
+						if (variables.contains(tempArgs[i])) {
+							char c = tempArgs[i].toCharArray()[0];
+							if (c <= 'z' && c >= 'a') {
+								if (uniMap2.containsKey(c)) {
+									if (!uniMap2.get(c).equals(args[i])) {
+										found = false;
+										break;
+									}
+								}
+								else {
+									uniMap2.put(c, args[i]);
+									subFound2 = true;
+								}
+							}
+						}
+						if (subFound1 || subFound2) continue;
 						if (!args[i].equals(tempArgs[i])) {
 							found = false;
 							break;
@@ -140,8 +172,10 @@ public class homework {
 				String[] argStr = str.substring(idx1, idx2).split(",");
 				for (int i = 0 ; i < argStr.length ; i++) {
 					if (argStr[i].length() == 1 && argStr[i].charAt(0) >= 'a' && argStr[i].charAt(0) <= 'z') {
+						String backup = argStr[i];
 						argStr[i] = uniMap1.get(argStr[i].charAt(0));
 						if (argStr[i] == null) {
+							uniMap1.put(backup.charAt(0), ((char)trackCharNum) + "");
 							argStr[i] = ((char)trackCharNum) + "";
 							trackCharNum++;
 						}
@@ -162,8 +196,10 @@ public class homework {
 				String[] argStr = str.substring(idx1, idx2).split(",");
 				for (int i = 0 ; i < argStr.length ; i++) {
 					if (argStr[i].length() == 1 && argStr[i].charAt(0) >= 'a' && argStr[i].charAt(0) <= 'z') {
+						String backup = argStr[i];
 						argStr[i] = uniMap2.get(argStr[i].charAt(0));
 						if (argStr[i] == null) {
+							uniMap2.put(backup.charAt(0), ((char)trackCharNum) + "");
 							argStr[i] = ((char)trackCharNum) + "";
 							trackCharNum++;
 						}
@@ -177,85 +213,7 @@ public class homework {
 			
 			return sentence;
 		}
-		
-		public Sentence eliminateSelf(Sentence other, Map<String, String> pair) {
-			Map<Character, String> uniMap = new HashMap<>();	// this sentence -> other
-			List<Character> trackVar = new ArrayList<>();
-			String key = "";
-			String value = "";
-			for (String tempKey : pair.keySet()) {
-				key = tempKey;
-				value = pair.get(tempKey);
-				String[] argKey = key.substring(key.indexOf('(') + 1, key.indexOf(')')).split(",");
-				String[] argValue = value.substring(value.indexOf('(') + 1, value.indexOf(')')).split(",");
-				int charValue = 'a';
-				for (int i = 0 ; i < argKey.length ; i++) {
-					if (argKey[i].length() == 1 && argKey[i].charAt(0) >= 'a' && argKey[i].charAt(0) <= 'z'
-							&& argValue[i].length() == 1 && argValue[i].charAt(0) >= 'a' && argValue[i].charAt(0) <= 'z') {
-						uniMap.put(argKey[i].charAt(0), ((char)charValue) + "");
-						uniMap.put(argValue[i].charAt(0), ((char)charValue) + "");
-						trackVar.add((char)charValue);
-						charValue++;
-					}
-					else if (argKey[i].length() == 1 && argKey[i].charAt(0) >= 'a' && argKey[i].charAt(0) <= 'z') {
-						uniMap.put(argKey[i].charAt(0), argValue[i]);
-					}
-					else if (argValue[i].length() == 1 && argValue[i].charAt(0) >= 'a' && argValue[i].charAt(0) <= 'z') {
-						uniMap.put(argValue[i].charAt(0), argKey[i]);
-					}
-				}
-			}
-			
-			int trackCharNum = 'a';
-			trackCharNum += trackVar.size();
-			Sentence sentence = new Sentence();
-			for (String str : literals) {
-				if (str.equals(key)) continue;
-				StringBuilder sb = new StringBuilder();
-				int idx1 = str.indexOf('(') + 1;
-				int idx2 = str.indexOf(')');
-				sb.append(str.substring(0, idx1));
-				String[] argStr = str.substring(idx1, idx2).split(",");
-				for (int i = 0 ; i < argStr.length ; i++) {
-					if (argStr[i].length() == 1 && argStr[i].charAt(0) >= 'a' && argStr[i].charAt(0) <= 'z') {
-						argStr[i] = uniMap.get(argStr[i].charAt(0));
-						if (argStr[i] == null) {
-							argStr[i] = ((char)trackCharNum) + "";
-							trackCharNum++;
-						}
-					}
-					sb.append(argStr[i]);
-					if (i != argStr.length - 1) sb.append(",");
-				}
-				sb.append(")");
-				sentence.addLiteral(sb.toString());
-			}
-			
-			for (String str : other.getLiterals()) {
-				if (str.equals(value)) continue;
-				StringBuilder sb = new StringBuilder();
-				int idx1 = str.indexOf('(') + 1;
-				int idx2 = str.indexOf(')');
-				sb.append(str.substring(0, idx1));
-				String[] argStr = str.substring(idx1, idx2).split(",");
-				for (int i = 0 ; i < argStr.length ; i++) {
-					if (argStr[i].length() == 1 && argStr[i].charAt(0) >= 'a' && argStr[i].charAt(0) <= 'z') {
-						argStr[i] = uniMap.get(argStr[i].charAt(0));
-						if (argStr[i] == null) {
-							argStr[i] = ((char)trackCharNum) + "";
-							trackCharNum++;
-						}
-					}
-					sb.append(argStr[i]);
-					if (i != argStr.length - 1) sb.append(",");
-				}
-				sb.append(")");
-				sentence.addLiteral(sb.toString());
-			}
-			
-			return sentence;
-		}
-		
+	
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
@@ -297,12 +255,12 @@ public class homework {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		readFile("input.txt");
-		// showInput();
+		readFile("testcases/input49.txt");
+		showInput();
 		generateSentences();
 		beginCheck();
 		output(results);
-		// showOutput();
+		showOutput();
 	}
 	
 	private static void readFile(String filename) {
@@ -371,56 +329,28 @@ public class homework {
 		results[idx] = resolution(initialSentence);
 	}
 	
-	public static Sentence checkSelf(Sentence sen) {
-		Sentence ss = sen;
-		while (true) {
-			boolean found = false;
-			for (String literal : ss.getLiterals()) {
-				Sentence tempS = new Sentence();
-				tempS.addLiteral(literal);
-				Map<String, String> p = ss.canEliminate(tempS);
-				if (p.size() != 0) {
-					ss.removeLiteral(literal);
-					ss = ss.eliminateSelf(tempS, p);
-					found = true;
-					break;
-				}
-			}
-			if (found) continue;
-			else break;
-		}
-		return ss;
-	}
-	
 	private static boolean resolution(Sentence sen) {
 		Set<Sentence> alreadyDetected = new HashSet<>();
-		Sentence resSentence = sen;
-		alreadyDetected.add(sen);
-		while (true) {
-			int numNotEliminate = 0;
-			boolean notFound = false;
-			for (Sentence temp : setAll) {
-				Map<String, String> pair = temp.canEliminate(resSentence);
-				if (pair.size() != 0) {
-					resSentence = checkSelf(temp.eliminate(resSentence, pair));
-					if (resSentence.literalNum() == 0) return true;
-					if (alreadyDetected.contains(resSentence)) return false;
-					else alreadyDetected.add(resSentence);
-					break;
-				}
-				else {
-					numNotEliminate++;
-				}
-				
-				if (numNotEliminate == setAll.size()) {
-					notFound = true;
-				}
+		return dfs(sen, alreadyDetected);
+	}
+	
+	private static boolean dfs(Sentence sen, Set<Sentence> visited) {
+		if (sen.literalNum() == 0) return true;
+		visited.add(sen);
+		for (Sentence temp : setAll) {
+			Map<String, String> pair = temp.canEliminate(sen);
+			if (pair.size() != 0) {
+				Sentence resSentence = temp.eliminate(sen, pair);
+				if (visited.contains(temp) || visited.contains(resSentence) || resSentence.canEliminate(resSentence).size() != 0) continue;
+				visited.add(temp);
+				if (dfs(resSentence, visited)) return true;
+				visited.remove(temp);
 			}
-			if (notFound) break;
 		}
+		visited.remove(sen);
 		return false;
 	}
- 
+
 	private static void output(boolean[] res) throws IOException {
 		File file = new File("output.txt");
 		if (file.exists()) file.delete();
@@ -454,7 +384,7 @@ public class homework {
 		System.out.println("+++++++++++++++++++++");
 		System.out.println("Outputs: ");
 		for (int i = 0 ; i < results.length ; i++) {
-			System.out.println(queries[i] + " result is ---- " + results[i]);
+			System.out.println((i + 1) + ".  " +queries[i] + " result is ---- " + results[i]);
 		}
 		System.out.println("+++++++++++++++++++++");
 	}
